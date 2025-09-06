@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Habits Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+            max-width: 1400px;
+            width: 95%;
+            margin: 20px;
+        }
+
+        .auth-container {
+            max-width: 400px;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .auth-form {
+            padding: 20px 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #c3b9ea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #c3b9ea 0%, #a89cd6 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(195, 185, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .dashboard {
+            padding: 20px;
+            display: none;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .logout-btn {
+            background: #666;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: #555;
+        }
+
+        .add-habit-section {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .add-habit-form {
+            display: flex;
+            gap: 15px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .add-habit-form .form-group {
+            margin-bottom: 0;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .add-habit-form select,
+        .add-habit-form input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .add-habit-form select:focus,
+        .add-habit-form input:focus {
+            border-color: #c3b9ea;
+            outline: none;
+        }
+
+        .btn-add {
+            background: #c3b9ea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .btn-add:hover {
+            background: #a89cd6;
+        }
+
+        .habits-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .habits-table th {
+            background: #2c2c2c;
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .habits-table td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .habits-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .lever-cell {
+            background: #666;
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+            width: 100px;
+        }
+
+        .habit-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-align: left;
+        }
+
+        .habit-text {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .habit-text:focus {
+            outline: none;
+            border: 1px solid #c3b9ea;
+            background: #f9f9f9;
+        }
+
+        .habit-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .habit-menu-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 16px;
+            color: #666;
+            border-radius: 3px;
+        }
+
+        .habit-menu-btn:hover {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .habit-menu-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            min-width: 120px;
+        }
+
+        .habit-menu-dropdown.show {
+            display: block;
+        }
+
+        .habit-menu-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .habit-menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .habit-menu-item:hover {
+            background: #f8f9fa;
+        }
+
+        .habit-menu-item.delete {
+            color: #dc3545;
+        }
+
+        .habit-menu-item.delete:hover {
+            background: #f8d7da;
+        }
+
+        .month-cell {
+            width: 70px;
+        }
+
+        .habit-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #c3b9ea;
+        }
+
+        .score-row {
+            background: linear-gradient(135deg, #c3b9ea 0%, #a89cd6 100%);
+            font-weight: 700;
+            color: white;
+        }
+
+        .score-cell {
+            font-size: 16px;
+            color: white;
+        }
+
+        .score-high { color: #28a745; }
+        .score-medium { color: #ffc107; }
+        .score-low { color: #dc3545; }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-control {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-save {
+            background: #c3b9ea;
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #a89cd6;
+        }
+
+        .btn-reset {
+            background: #666;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #555;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .credentials-info {
+            background: #e1f5fe;
+            border: 1px solid #b3e5fc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .credentials-info h4 {
+            color: #01579b;
+            margin-bottom: 10px;
+        }
+
+        .credentials-table {
+            font-size: 12px;
+            color: #01579b;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 98%;
+                margin: 10px;
+            }
+
+            .habits-table {
+                font-size: 12px;
+            }
+
+            .habit-text {
+                font-size: 12px;
+            }
+
+            .month-cell {
+                width: 50px;
+            }
+
+            .habits-table th,
+            .habits-table td {
+                padding: 8px 5px;
+            }
+
+            .controls {
+                justify-content: center;
+            }
+
+            .add-habit-form {
+                flex-direction: column;
+            }
+
+            .add-habit-form .form-group {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+
+            .habit-cell {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Authentication Section -->
+        <div id="auth-section">
+            <div class="header">
+                <h1>Financial Habits Tracker</h1>
+                <p>Track your financial habits monthly to improve your score and build better financial health</p>
+            </div>
+            
+            <div class="auth-container">
+                <div id="message-area"></div>
+                
+                <!-- Login Form -->
+                <div id="login-form" class="auth-form">
+                    <h2 style="text-align: center; margin-bottom: 30px; color: #333;">Login to Your Account</h2>
+                    
+                    <!-- Credentials Information -->
+                    <div class="credentials-info">
+                        <h4>Login Credentials:</h4>
+                        <table class="credentials-table" style="width: 100%;">
+                            <tr><td><strong>User ID:</strong> SanketK</td><td><strong>Password:</strong> Sak123</td></tr>
+                            <tr><td><strong>User ID:</strong> SakyK</td><td><strong>Password:</strong> Syk123</td></tr>
+                            <tr><td><strong>User ID:</strong> ChickuT</td><td><strong>Password:</strong> C123</td></tr>
+                        </table>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="loginUserId">User ID</label>
+                        <input type="text" id="loginUserId" placeholder="Enter your User ID" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                    </div>
+                    <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">Login</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="dashboard">
+            <div class="header">
+                <h1>How a Qualified Financial Advisor Will Advise?</h1>
+                <p>Your Next 12 Months Tracker</p>
+            </div>
+            
+            <div class="dashboard-header">
+                <div class="user-info">
+                    <h3>Welcome, <span id="userName"></span></h3>
+                    <small style="color: #666;">User ID: <span id="userIdDisplay"></span></small>
+                </div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+
+            <div id="dashboard-message"></div>
+            
+            <!-- Add New Habit Section -->
+            <div class="add-habit-section">
+                <h4 style="margin-bottom: 15px; color: #333;">Add New Financial Habit</h4>
+                <div class="add-habit-form">
+                    <div class="form-group">
+                        <label for="newLever">Lever Category</label>
+                        <select id="newLever">
+                            <option value="Keep risk in check">Keep risk in check</option>
+                            <option value="Save more">Save more</option>
+                            <option value="Earn more">Earn more</option>
+                            <option value="Cut unwanted expenses">Cut unwanted expenses</option>
+                            <option value="Invest wisely">Invest wisely</option>
+                            <option value="Plan for future">Plan for future</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="newHabit">Habit Description</label>
+                        <input type="text" id="newHabit" placeholder="Enter new financial habit..." maxlength="150">
+                    </div>
+                    <button class="btn-add" onclick="addNewHabit()">Add Habit</button>
+                </div>
+            </div>
+            
+            <div style="overflow-x: auto;">
+                <table class="habits-table" id="habitsTable">
+                    <thead>
+                        <tr>
+                            <th>Levers</th>
+                            <th style="width: 400px;">Financial Habits</th>
+                            <th>M1</th>
+                            <th>M2</th>
+                            <th>M3</th>
+                            <th>M4</th>
+                            <th>M5</th>
+                            <th>M6</th>
+                            <th>M7</th>
+                            <th>M8</th>
+                            <th>M9</th>
+                            <th>M10</th>
+                            <th>M11</th>
+                            <th>M12</th>
+                        </tr>
+                    </thead>
+                    <tbody id="habitsTableBody">
+                    </tbody>
+                    <tfoot>
+                        <tr class="score-row">
+                            <td class="lever-cell">Score</td>
+                            <td><strong>Your Financial Habits Score</strong></td>
+                            <td class="score-cell" id="score-m1">0</td>
+                            <td class="score-cell" id="score-m2">0</td>
+                            <td class="score-cell" id="score-m3">0</td>
+                            <td class="score-cell" id="score-m4">0</td>
+                            <td class="score-cell" id="score-m5">0</td>
+                            <td class="score-cell" id="score-m6">0</td>
+                            <td class="score-cell" id="score-m7">0</td>
+                            <td class="score-cell" id="score-m8">0</td>
+                            <td class="score-cell" id="score-m9">0</td>
+                            <td class="score-cell" id="score-m10">0</td>
+                            <td class="score-cell" id="score-m11">0</td>
+                            <td class="score-cell" id="score-m12">0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="controls">
+                <button class="btn-control btn-save" onclick="saveChanges()">Save Changes</button>
+                <button class="btn-control btn-reset" onclick="resetToDefaults()">Reset to Defaults</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Habit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Financial Habit</h3>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+            <div class="form-group">
+                <label for="editLever">Lever Category</label>
+                <select id="editLever">
+                    <option value="Keep risk in check">Keep risk in check</option>
+                    <option value="Save more">Save more</option>
+                    <option value="Earn more">Earn more</option>
+                    <option value="Cut unwanted expenses">Cut unwanted expenses</option>
+                    <option value="Invest wisely">Invest wisely</option>
+                    <option value="Plan for future">Plan for future</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="editHabit">Habit Description</label>
+                <input type="text" id="editHabit" maxlength="150">
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                <button onclick="closeEditModal()" style="background: #666; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Cancel</button>
+                <button onclick="saveEditedHabit()" style="background: #c3b9ea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // PREDEFINED USERS - HARDCODED CREDENTIALS
+        const PREDEFINED_USERS = {
+            'SanketK': {
+                userId: 'SanketK',
+                password: 'Sak123',
+                userName: 'Sanket Kadam'
+            },
+            'SakyK': {
+                userId: 'SakyK', 
+                password: 'Syk123',
+                userName: 'Saky Kady'
+            },
+            'ChickuT': {
+                userId: 'ChickuT',
+                password: 'C123', 
+                userName: 'Chicku test'
+            }
+        };
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCRnNkMDtn2LGFY_kd2lTnSWl4ZjUluWrQ",
+            authDomain: "financial-habits-tracker.firebaseapp.com",
+            projectId: "financial-habits-tracker",
+            storageBucket: "financial-habits-tracker.firebasestorage.app",
+            messagingSenderId: "429740001233",
+            appId: "1:429740001233:web:c40f4fc47d0c2952d982f0",
+            measurementId: "G-FS0V4DP7F0"
+        };
+
+        // Initialize Firebase (check if config is set)
+        let firebaseInitialized = false;
+        let db = null;
+        let auth = null;
+
+        try {
+            if (firebaseConfig.apiKey !== "your-api-key") {
+                firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+                db = firebase.firestore();
+                firebaseInitialized = true;
+                console.log("Firebase initialized successfully!");
+            } else {
+                console.log("Using localStorage fallback - Firebase not configured");
+            }
+        } catch (error) {
+            console.error("Firebase initialization failed:", error);
+        }
+
+        // Global variables
+        let currentUser = null;
+        let userHabits = [];
+        let editingHabitIndex = -1;
+
+        // Default financial habits
+        const defaultHabits = [
+            { lever: "Keep risk in check", habit: "Maintain 6 months of emergency funds" },
+            { lever: "Keep risk in check", habit: "Hold term cover of 5x-10x annual income" },
+            { lever: "Keep risk in check", habit: "Cover entire family in health insurance policy" },
+            { lever: "Save more", habit: "Invest 20%-30% of monthly gross income" },
+            { lever: "Save more", habit: "Keep auto-debit SIPs b/w 1st-5th every month" },
+            { lever: "Save more", habit: "Maintain SIPs in 5%-15% yearly 'Step-up' mode" },
+            { lever: "Earn more", habit: "Spend 10 hrs/month on marketable upskilling" },
+            { lever: "Earn more", habit: "Read 1 hour/week on importance of asset allocation" },
+            { lever: "Cut unwanted expenses", habit: "Maintain zero personal/CC loans" },
+            { lever: "Cut unwanted expenses", habit: "Invest only via direct MF plans" },
+            { lever: "Cut unwanted expenses", habit: "Eat home-cooked food 6 days/week" },
+            { lever: "Cut unwanted expenses", habit: "Invest only via direct MF plans" },
+            { lever: "Cut unwanted expenses", habit: "Pay credit card bill in full" }
+        ];
+
+        // Initialize on page load
+        window.onload = function() {
+            checkLocalStorageSession();
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.habit-menu')) {
+                    closeAllDropdowns();
+                }
+            });
+        };
+
+        // Check localStorage session (fallback)
+        function checkLocalStorageSession() {
+            const savedUserId = localStorage.getItem('currentUserId');
+            if (savedUserId && PREDEFINED_USERS[savedUserId]) {
+                currentUser = PREDEFINED_USERS[savedUserId];
+                showDashboard();
+            }
+        }
+
+        // Show message
+        function showMessage(message, isError = false) {
+            const messageArea = document.getElementById('message-area');
+            messageArea.innerHTML = `<div class="${isError ? 'error-message' : 'success-message'}">${message}</div>`;
+            setTimeout(() => {
+                messageArea.innerHTML = '';
+            }, 5000);
+        }
+
+        // Do login
+        function doLogin() {
+            const userId = document.getElementById('loginUserId').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!userId || !password) {
+                showMessage('Please fill in all fields', true);
+                return;
+            }
+
+            // Check credentials
+            if (PREDEFINED_USERS[userId] && PREDEFINED_USERS[userId].password === password) {
+                currentUser = PREDEFINED_USERS[userId];
+                localStorage.setItem('currentUserId', userId);
+                showDashboard();
+            } else {
+                showMessage('Invalid User ID or password', true);
+            }
+        }
+
+        // Show dashboard
+        function showDashboard() {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('dashboard-section').style.display = 'block';
+            
+            // Display user information
+            document.getElementById('userName').textContent = currentUser.userName;
+            document.getElementById('userIdDisplay').textContent = currentUser.userId;
+            
+            loadUserHabits();
+        }
+
+        // Load user habits
+        function loadUserHabits() {
+            try {
+                if (firebaseInitialized && currentUser) {
+                    // Load from Firestore
+                    loadFromFirestore();
+                } else {
+                    // Load from localStorage
+                    const habitKey = `habits_${currentUser.userId}`;
+                    const stored = localStorage.getItem(habitKey);
+                    if (stored) {
+                        userHabits = JSON.parse(stored);
+                    } else {
+                        userHabits = initializeDefaultHabits();
+                        localStorage.setItem(habitKey, JSON.stringify(userHabits));
+                    }
+                    renderHabitsTable();
+                }
+            } catch (error) {
+                console.error('Error loading habits:', error);
+                showDashboardMessage('Error loading habits. Please try again.', true);
+            }
+        }
+
+        // Load from Firestore
+        async function loadFromFirestore() {
+            try {
+                const doc = await db.collection('users').doc(currentUser.userId).get();
+                if (doc.exists) {
+                    userHabits = doc.data().habits || [];
+                } else {
+                    // Initialize with defaults
+                    userHabits = initializeDefaultHabits();
+                    await saveHabitsToFirestore();
+                }
+                renderHabitsTable();
+            } catch (error) {
+                console.error('Error loading from Firestore:', error);
+                // Fallback to localStorage
+                loadUserHabits();
+            }
+        }
+
+        // Initialize default habits
+        function initializeDefaultHabits() {
+            return defaultHabits.map((item, index) => ({
+                id: Date.now() + index,
+                lever: item.lever,
+                habit: item.habit,
+                months: new Array(12).fill(false)
+            }));
+        }
+
+        // Save habits to Firestore
+        async function saveHabitsToFirestore() {
+            if (firebaseInitialized && currentUser) {
+                try {
+                    await db.collection('users').doc(currentUser.userId).set({
+                        userId: currentUser.userId,
+                        userName: currentUser.userName,
+                        habits: userHabits,
+                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } catch (error) {
+                    console.error('Error saving to Firestore:', error);
+                }
+            }
+        }
+
+        // Save habits to localStorage
+        function saveHabitsToLocalStorage() {
+            if (currentUser) {
+                const habitKey = `habits_${currentUser.userId}`;
+                localStorage.setItem(habitKey, JSON.stringify(userHabits));
+            }
+        }
+
+        // Render habits table
+        function renderHabitsTable() {
+            const tableBody = document.getElementById('habitsTableBody');
+            tableBody.innerHTML = '';
+            
+            if (userHabits.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="14" class="empty-state">
+                        <h3>No habits yet!</h3>
+                        <p>Add your first financial habit using the form above.</p>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+                calculateScores();
+                return;
+            }
+
+            userHabits.forEach((habitData, index) => {
+                const row = document.createElement('tr');
+                
+                // Lever cell
+                const leverCell = document.createElement('td');
+                leverCell.className = 'lever-cell';
+                leverCell.textContent = habitData.lever;
+                row.appendChild(leverCell);
+                
+                // Habit text cell with menu
+                const habitCell = document.createElement('td');
+                habitCell.innerHTML = `
+                    <div class="habit-cell">
+                        <input type="text" class="habit-text" value="${habitData.habit}" 
+                               onblur="saveHabitText(${index}, this.value)">
+                        <div class="habit-menu">
+                            <button class="habit-menu-btn" onclick="toggleDropdown(${index})">⋯</button>
+                            <div class="habit-menu-dropdown" id="dropdown-${index}">
+                                <div class="habit-menu-item" onclick="editHabit(${index})">
+                                    Edit
+                                </div>
+                                <div class="habit-menu-item delete" onclick="deleteHabit(${index})">
+                                    Delete
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                row.appendChild(habitCell);
+                
+                // Month checkboxes
+                for (let month = 0; month < 12; month++) {
+                    const monthCell = document.createElement('td');
+                    monthCell.className = 'month-cell';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'habit-checkbox';
+                    checkbox.checked = habitData.months[month];
+                    checkbox.onchange = function() { saveHabitMonth(index, month, this.checked); };
+                    
+                    monthCell.appendChild(checkbox);
+                    row.appendChild(monthCell);
+                }
+                
+                tableBody.appendChild(row);
+            });
+            
+            calculateScores();
+        }
+
+        // Toggle dropdown menu
+        function toggleDropdown(index) {
+            closeAllDropdowns();
+            const dropdown = document.getElementById(`dropdown-${index}`);
+            if (dropdown) {
+                dropdown.classList.add('show');
+            }
+        }
+
+        // Close all dropdowns
+        function closeAllDropdowns() {
+            const dropdowns = document.querySelectorAll('.habit-menu-dropdown');
+            dropdowns.forEach(dropdown => {
+                dropdown.classList.remove('show');
+            });
+        }
+
+        // Edit habit
+        function editHabit(index) {
+            closeAllDropdowns();
+            editingHabitIndex = index;
+            const habit = userHabits[index];
+            
+            document.getElementById('editLever').value = habit.lever;
+            document.getElementById('editHabit').value = habit.habit;
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        // Close edit modal
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            editingHabitIndex = -1;
+        }
+
+        // Save edited habit
+        async function saveEditedHabit() {
+            if (editingHabitIndex === -1) return;
+
+            const newLever = document.getElementById('editLever').value;
+            const newHabit = document.getElementById('editHabit').value.trim();
+
+            if (!newHabit) {
+                alert('Please enter a habit description');
+                return;
+            }
+
+            userHabits[editingHabitIndex].lever = newLever;
+            userHabits[editingHabitIndex].habit = newHabit;
+
+            await saveHabitsToFirestore();
+            saveHabitsToLocalStorage();
+            renderHabitsTable();
+            closeEditModal();
+            showDashboardMessage('Habit updated successfully!');
+        }
+
+        // Delete habit
+        async function deleteHabit(index) {
+            closeAllDropdowns();
+            
+            if (confirm('Are you sure you want to delete this habit? This will remove all progress for this habit.')) {
+                userHabits.splice(index, 1);
+                await saveHabitsToFirestore();
+                saveHabitsToLocalStorage();
+                renderHabitsTable();
+                showDashboardMessage('Habit deleted successfully!');
+            }
+        }
+
+        // Add new habit
+        async function addNewHabit() {
+            const lever = document.getElementById('newLever').value;
+            const habit = document.getElementById('newHabit').value.trim();
+
+            if (!habit) {
+                alert('Please enter a habit description');
+                return;
+            }
+
+            const newHabit = {
+                id: Date.now(),
+                lever: lever,
+                habit: habit,
+                months: new Array(12).fill(false)
+            };
+
+            userHabits.push(newHabit);
+            
+            await saveHabitsToFirestore();
+            saveHabitsToLocalStorage();
+            renderHabitsTable();
+            
+            // Clear form
+            document.getElementById('newHabit').value = '';
+            document.getElementById('newLever').selectedIndex = 0;
+            
+            showDashboardMessage('New habit added successfully!');
+        }
+
+        // Save habit text
+        async function saveHabitText(habitIndex, newText) {
+            if (habitIndex >= 0 && habitIndex < userHabits.length) {
+                userHabits[habitIndex].habit = newText;
+                await saveHabitsToFirestore();
+                saveHabitsToLocalStorage();
+            }
+        }
+
+        // Save habit month
+        async function saveHabitMonth(habitIndex, month, checked) {
+            if (habitIndex >= 0 && habitIndex < userHabits.length) {
+                userHabits[habitIndex].months[month] = checked;
+                await saveHabitsToFirestore();
+                saveHabitsToLocalStorage();
+                calculateScores();
+            }
+        }
+
+        // Calculate scores with dynamic total
+        function calculateScores() {
+            const totalHabits = userHabits.length;
+            
+            for (let month = 0; month < 12; month++) {
+                let checkedCount = 0;
+                
+                userHabits.forEach(habit => {
+                    if (habit.months[month]) {
+                        checkedCount++;
+                    }
+                });
+                
+                const score = totalHabits > 0 ? Math.round((checkedCount / totalHabits) * 100) : 0;
+                const scoreCell = document.getElementById(`score-m${month + 1}`);
+                scoreCell.textContent = score;
+                
+                // Apply color coding
+                scoreCell.className = 'score-cell';
+                if (score >= 70) {
+                    scoreCell.classList.add('score-high');
+                } else if (score >= 50) {
+                    scoreCell.classList.add('score-medium');
+                } else {
+                    scoreCell.classList.add('score-low');
+                }
+            }
+        }
+
+        // Save changes
+        async function saveChanges() {
+            await saveHabitsToFirestore();
+            saveHabitsToLocalStorage();
+            showDashboardMessage('Changes saved successfully!');
+        }
+
+        // Reset to defaults
+        async function resetToDefaults() {
+            if (confirm('Are you sure you want to reset all habits to defaults? This will clear all your progress and custom habits.')) {
+                userHabits = initializeDefaultHabits();
+                await saveHabitsToFirestore();
+                saveHabitsToLocalStorage();
+                renderHabitsTable();
+                showDashboardMessage('Habits reset to defaults!');
+            }
+        }
+
+        // Show dashboard message
+        function showDashboardMessage(message, isError = false) {
+            const dashboardMessage = document.getElementById('dashboard-message');
+            dashboardMessage.innerHTML = `<div class="${isError ? 'error-message' : 'success-message'}">${message}</div>`;
+            setTimeout(() => {
+                dashboardMessage.innerHTML = '';
+            }, 3000);
+        }
+
+        // Logout
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUserId');
+            
+            document.getElementById('auth-section').style.display = 'block';
+            document.getElementById('dashboard-section').style.display = 'none';
+            
+            // Clear forms
+            document.getElementById('loginUserId').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const editModal = document.getElementById('editModal');
+            
+            if (event.target === editModal) {
+                closeEditModal();
+            }
+        }
+
+        // Handle Enter key press on login form
+        document.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter' && document.getElementById('auth-section').style.display !== 'none') {
+                doLogin();
+            }
+        });
+    </script>
+</body>
+</html>
